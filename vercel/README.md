@@ -68,6 +68,22 @@ It adds the content to a staging branch so that it can be reviewed before being 
 ./update-from-zip.sh ~/Downloads/my-v0-project ~/projects/my-git-repo
 ```
 
+## Push staging branch to prod
+
+Instructions on how to push content of staging branch to main
+
+``` bash
+# Switch to main branch
+git checkout main
+
+# Merge staging into main
+git merge staging
+
+# Push the changes to remote
+git push origin main
+```
+
+
 ## Workflow Tips
 
 - Always review changes in the staging branch before commiting and merging to your main branch
