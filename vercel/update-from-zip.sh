@@ -9,6 +9,31 @@
 
 set -e  # Exit on any error
 
+# Function to normalize path (remove trailing slash if present)
+normalize_path() {
+  local path="$1"
+  # Remove trailing slash if it exists (unless it's just "/")
+  if [[ "$path" != "/" ]]; then
+    path="${path%/}"
+  fi
+  echo "$path"
+}
+
+# Function to get absolute path
+get_absolute_path() {
+  local path="$1"
+  local normalized_path=$(normalize_path "$path")
+  
+  # If already absolute, return it
+  if [[ "$normalized_path" = /* ]]; then
+    echo "$normalized_path"
+    return
+  fi
+  
+  # Otherwise, prepend current working directory
+  echo "$(cd "$(dirname "$normalized_path")" && pwd)/$(basename "$normalized_path")"
+}
+
 # Function to check if a branch exists in the specified git directory
 branch_exists() {
   local target_dir="$1"
@@ -39,17 +64,12 @@ if [ -z "$1" ] || [ -z "$2" ]; then
   error_exit "Usage: $0 <source_folder> <target_folder>"
 fi
 
-SOURCE_FOLDER="$1"
-TARGET_FOLDER="$2"
+# Get and normalize paths
+SOURCE_FOLDER=$(get_absolute_path "$1")
+TARGET_FOLDER=$(get_absolute_path "$2")
 
-# Resolve to absolute paths if relative paths are provided
-if [[ ! "$SOURCE_FOLDER" = /* ]]; then
-  SOURCE_FOLDER="$(pwd)/$SOURCE_FOLDER"
-fi
-
-if [[ ! "$TARGET_FOLDER" = /* ]]; then
-  TARGET_FOLDER="$(pwd)/$TARGET_FOLDER"
-fi
+echo "Source folder (absolute): $SOURCE_FOLDER"
+echo "Target folder (absolute): $TARGET_FOLDER"
 
 # Verify source folder exists
 if [ ! -d "$SOURCE_FOLDER" ]; then
@@ -82,9 +102,15 @@ fi
 
 echo "Copying files from $SOURCE_FOLDER to $TARGET_FOLDER..."
 
+# Add trailing slashes for rsync to work correctly
+# For rsync, source with trailing slash means "copy contents of this directory"
+# without the trailing slash it would create a subdirectory
+SOURCE_RSYNC="$SOURCE_FOLDER/"
+TARGET_RSYNC="$TARGET_FOLDER/"
+
 # Copy the contents from the source folder to the target folder
 # Use rsync to ensure only new/updated files are copied
-rsync -av --progress "$SOURCE_FOLDER/" "$TARGET_FOLDER/" || error_exit "Failed to copy files."
+rsync -av --progress "$SOURCE_RSYNC" "$TARGET_RSYNC" || error_exit "Failed to copy files."
 
 echo "Success! Files have been updated."
 echo "Don't forget to review changes, add files to git, commit, and push."
