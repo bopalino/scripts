@@ -5,14 +5,9 @@ Most of these scripts are written for personal use on my Mac and not significant
 The scripts have been written using AI and are not guaranteed to work.
 Use at your own risk and do your own diligence before running these scripts.
 
-## vercel/update-from-zip.sh
+## Available Scripts
 
-A script to take the content of a V0 zip file and update a local git repo with the same content.
-It add the content to the staging branch so that it can be reviewed before being pushed to the remote repo.
-
-Usage:
-
-```bash
-./vercel/update-from-zip.sh <path-to-zip-file> <path-to-local-repo>
-```
-
+### [Vercel V0 to Git Integration](./-vercel/README.md)
+Documentation for working with Vercel V0 projects and Git repositories. Contains:
+- A detailed workflow for integrating Vercel V0 projects with Git
+- Scripts to automate the deployment process, including updating a local repo from a V0 zip file
